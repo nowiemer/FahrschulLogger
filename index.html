@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="de">
+<head <link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0b0c">>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Fahrschul-Logger (PWA) v6.7</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href='data:application/manifest+json,{"name":"Fahrschul-Logger","short_name":"Logger","display":"standalone","start_url":"."}'>
+<meta name="theme-color" content="#0b0b0c">
+<style>
+:root{
+  --bg:#0b0b0c; --card:#151517; --muted:#a5a5ad; --txt:#f5f6f8;
+  --green:#2ecc71; --amber:#f39c12; --red:#e74c3c; --accent:#4da3ff;
+  --line:#26262a; --soft:#101013;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--txt)}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(11,11,12,.95),rgba(11,11,12,.7));backdrop-filter:saturate(1.2) blur(8px)}
+.bar{display:flex;gap:.5rem;align-items:center;padding:.8rem 1rem;border-bottom:1px solid var(--line)}
+.title{font-weight:700;font-size:1.05rem;letter-spacing:.2px}
+.tabs{display:flex;gap:.4rem;padding:.5rem 1rem;overflow:auto}
+.tab{flex:0 0 auto;padding:.55rem .8rem;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:#111113;cursor:pointer}
+.tab.active{color:#fff;border-color:#3a3a41;background:#1a1a1f}
+main{padding:1rem;max-width:1100px;margin:0 auto;padding-bottom:86px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.row{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:.5rem}
+.grid{display:grid;gap:.6rem}
+@media(min-width:900px){.grid.cols-2{grid-template-columns:1fr 1fr}}
+label{font-size:.9rem;color:var(--muted)}
+input,select,textarea{width:100%;padding:.8rem .9rem;border-radius:12px;border:1px solid var(--line);background:#0f0f12;color:#fff;font-size:1rem}
+textarea{min-height:90px}
+button{padding:.75rem 1rem;border-radius:12px;border:1px solid var(--line);background:#111114;color:#fff;font-weight:600;cursor:pointer}
+button.primary{background:var(--accent);border-color:transparent;color:#001733}
+button.ghost{background:transparent}
+.pill{padding:.32rem .6rem;border-radius:999px;border:1px solid var(--line);color:#cfd2d9;font-size:.85rem;cursor:pointer}
+.pill.active{background:#1a1a1f;color:#fff;border-color:#3a3a41}
+.sep{height:1px;background:var(--line);margin:.7rem 0}
+.space{flex:1}
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:.7rem;padding:.7rem;border-radius:12px;border:1px solid var(--line);background:#0f0f12;flex-wrap:wrap}
+
+.catBlock{border:1px solid var(--line);border-radius:14px;background:var(--soft);margin:.6rem 0}
+.catHeader{display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;font-weight:700}
+.catHeader .right{margin-left:auto;display:flex;gap:.4rem;align-items:center}
+
+#stickySearch{position:sticky;top:84px;z-index:15;background:linear-gradient(180deg,rgba(21,21,23,.98),rgba(21,21,23,.92));backdrop-filter:blur(6px);padding:.5rem .7rem;border:1px solid var(--line);border-radius:12px;margin:.5rem 0}
+
+.tileGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;padding:.6rem}
+.tileGrid.compact{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(min-width:700px){.tileGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.tileGrid.compact{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:1100px){.tileGrid{grid-template-columns:repeat(4,minmax(0,1fr))}.tileGrid.compact{grid-template-columns:repeat(6,minmax(0,1fr))}}
+body.landscape .tileGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.landscape .tileGrid.compact{grid-template-columns:repeat(6,minmax(0,1fr))}
+
+.tile{border:1px solid var(--line);border-radius:14px;background:#0f0f12;padding:.6rem;display:flex;flex-direction:column;gap:.45rem;user-select:none}
+.tileHeader{display:flex;align-items:center;gap:.5rem}
+.tileLabel{font-weight:600}
+.rateBar{display:flex;gap:.4rem}
+.rateBar button{flex:1;padding:.55rem .4rem;border-radius:10px}
+.rateBar .g{background:rgba(46,204,113,.12);border-color:#214d38}
+.rateBar .o{background:rgba(243,156,18,.12);border-color:#5b420f}
+.rateBar .r{background:rgba(231,76,60,.12);border-color:#5a1b16}
+.rateBar .n{background:#0d0d10}
+.miniCounts{display:flex;gap:.4rem;color:#c9ccd3;font-size:.86rem}
+.noteToggle{margin-left:auto;font-size:.8rem}
+.noteArea{display:none}
+.noteArea textarea{min-height:60px}
+.noteDot{width:8px;height:8px;border-radius:999px;background:#555;display:inline-block}
+.noteDot.has{background:var(--accent)}
+
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid var(--line);padding:.6rem;text-align:left;font-size:.93rem}
+.table tr.clickable{cursor:pointer}
+
+.chip{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .6rem;border-radius:999px;border:1px solid var(--line)}
+
+.hint{font-size:.84rem;color:#9aa}
+.badge{border:1px solid var(--line);border-radius:999px;padding:.2rem .5rem;color:#cfd2d9;font-size:.85rem}
+.right{margin-left:auto}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+.modal.show{display:flex}
+.modalCard{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:1rem;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+
+#advPanel{display:none}
+.show-adv #advPanel{display:block}
+
+/* Bottom Dock */
+.bottomDock{position:fixed;left:0;right:0;bottom:0;background:#0f0f12;border-top:1px solid var(--line);padding:.5rem .7rem;display:flex;gap:.5rem;align-items:center;z-index:40}
+.bottomDock .group{display:flex;gap:.4rem;align-items:center;overflow:auto}
+.bottomDock .group::-webkit-scrollbar{display:none}
+.bottomDock .action{padding:.5rem .7rem;border-radius:10px;border:1px solid var(--line);background:#151517}
+.bottomDock .pres{padding:.35rem .6rem;border-radius:999px;border:1px solid var(--line);background:#121214;font-size:.85rem}
+
+/* Toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:#151517;border:1px solid var(--line);color:#fff;padding:.6rem .9rem;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:60;display:none}
+.toast.show{display:block;animation:pop .2s ease-out}
+@keyframes pop{from{transform:translateX(-50%) translateY(6px);opacity:.8} to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* PRINT */
+#printArea{display:none}
+.print-detailed #printArea{display:block}
+@media print{
+  :root{--bg:#fff;--card:#fff;--txt:#000;--muted:#333;--line:#ccc;--soft:#fff;--green:#2ecc71;--amber:#f39c12;--red:#e74c3c}
+  header,.tabs,main,.bottomDock,.toast{display:none!important}
+  #printArea{display:block!important;padding:16mm}
+  .pTitle{font-size:22px;font-weight:800;margin-bottom:2mm}
+  .pMeta{margin-bottom:6mm;color:#333}
+  .pBlock{border:1px solid #ddd;border-radius:10px;margin:6mm 0}
+  .pHead{display:flex;justify-content:space-between;align-items:center;background:#fafafa;border-bottom:1px solid #eee;padding:3mm 4mm;font-weight:700}
+  .pItem{display:flex;justify-content:space-between;gap:6mm;border-top:1px dashed #eee;padding:3mm 4mm}
+  .pBadge{display:inline-block;border:1px solid #ddd;border-radius:999px;padding:1mm 3mm;font-size:11px;margin-left:2mm}
+  .pLegend{margin-top:4mm;font-size:11px;color:#444}
+  .pNote{font-size:11.5px;color:#333;margin-top:1mm;white-space:pre-wrap}
+  .pScore{min-width:22mm;text-align:right;font-weight:700}
+  .pScore.good{color:#0a7a3d}
+  .pScore.ok{color:#9b6b09}
+  .pScore.bad{color:#9b1b14}
+  .pFooter{margin-top:10mm;font-size:11px;color:#555}
+  .pLessonTitle{font-size:18px;font-weight:800;margin-bottom:2mm}
+}
+
+/* Highlight */
+.openDim .tile[data-cat="Stellen (ortsbezogen)"].done,
+.openDim .tile[data-cat="Aufgaben"].done {opacity:.45;filter:saturate(.7)}
+.openHighlight .tile[data-cat="Stellen (ortsbezogen)"].open,
+.openHighlight .tile[data-cat="Aufgaben"].open {outline:2px dashed var(--accent)}
+
+/* HEATMAP */
+.heatLegend{display:flex;gap:.5rem;align-items:center}
+.heatLegend .box{width:14px;height:14px;border-radius:4px;border:1px solid var(--line)}
+.hmBlock{border:1px solid var(--line);border-radius:12px;background:#0f0f12;margin:.6rem 0}
+.hmHead{display:flex;gap:.5rem;align-items:center;padding:.6rem .8rem;font-weight:700}
+.hmRow{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;padding:.4rem .8rem;border-top:1px dashed var(--line)}
+.hmBar{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;height:14px;width:180px}
+.hmGood{background:rgba(46,204,113,.8)}
+.hmOk{background:rgba(243,156,18,.85)}
+.hmBad{background:rgba(231,76,60,.85)}
+.hmScore{font-weight:700;min-width:46px;text-align:right}
+
+/* SETTINGS */
+.setBlock{border:1px solid var(--line);border-radius:12px;background:#0f0f12;margin:.6rem 0}
+.setHead{display:flex;gap:.5rem;align-items:center;padding:.6rem .8rem;font-weight:700}
+.setRow{display:flex;gap:.6rem;align-items:center;padding:.4rem .8rem;border-top:1px dashed var(--line);flex-wrap:wrap}
+.setRow input{max-width:360px}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="title">🚗 Fahrschul-Logger</div>
+    <div class="space"></div>
+    <button id="btnExport" title="Backup/Export">⬇️ Backup</button>
+    <button id="btnImport" title="Backup importieren">⬆️ Import</button>
+    <button id="btnHelp" class="ghost" title="Hinweis">ℹ️</button>
+  </div>
+  <div class="tabs">
+    <button class="tab" data-tab="students">Schüler</button>
+    <button class="tab active" data-tab="session">Stunde starten</button>
+    <button class="tab" data-tab="report">Auswertung</button>
+    <button class="tab" data-tab="settings">Einstellungen</button>
+  </div>
+</header>
+
+<main>
+  <!-- Schüler -->
+  <section id="tab-students" class="card" style="display:none">
+    <div class="row">
+      <label>Archiv anzeigen</label>
+      <input id="toggleArchive" type="checkbox" />
+    </div>
+    <div class="grid cols-2">
+      <div class="col">
+        <label>Neuer Schüler</label>
+        <div class="row">
+          <input id="newStudentName" placeholder="Name" />
+          <button id="addStudent" class="primary" type="button">Hinzufügen</button>
+        </div>
+        <div class="sep"></div>
+        <label>Schülerliste</label>
+        <div id="studentList" class="list"></div>
+      </div>
+      <div class="col">
+        <label>Notizen zum ausgewählten Schüler</label>
+        <textarea id="studentNotes" placeholder="z.B. Prüfgebiet, Besonderheiten…"></textarea>
+        <div class="row">
+          <span id="selectedStudentName" class="pill">Keiner ausgewählt</span>
+          <div class="space"></div>
+          <button id="saveStudentNotes" type="button">Speichern</button>
+        </div>
+        <div class="sep"></div>
+        <label>Letzte Stunden</label>
+        <table class="table" id="lastLessonsTable">
+          <thead><tr><th>Datum</th><th>Punkte</th><th>⌀</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stunde -->
+  <section id="tab-session" class="card">
+    <div class="col">
+      <div class="row" style="align-items:center">
+        <label class="space">Schüler & Datum</label>
+        <button id="btnWizard" class="pill" type="button" title="Start-Assistent">Assistent starten</button>
+        <button id="btnToggleAdv" class="ghost" type="button" title="Erweiterte Eingabe ein/aus">Erweitert</button>
+      </div>
+      <div class="row">
+        <select id="sessionStudent"></select>
+        <input id="sessionDate" type="datetime-local" />
+      </div>
+    </div>
+
+    <div id="advPanel">
+      <div class="sep"></div>
+      <label>Fahrstundentyp & Minuten</label>
+      <div class="row" id="lessonTypes">
+        <button class="pill" data-type="Übung" type="button">Übung</button>
+        <button class="pill" data-type="ÜL" type="button">ÜL</button>
+        <button class="pill" data-type="BAB" type="button">BAB</button>
+        <button class="pill" data-type="NF" type="button">NF</button>
+        <button class="pill" data-type="PrfV" type="button">PrfV</button>
+      </div>
+      <div id="typeDurations" class="col" style="margin:.5rem 0;"></div>
+      <div class="row" id="typePresets">
+        <span class="pill">Presets:</span>
+        <button class="pill" data-min="45" type="button">45</button>
+        <button class="pill" data-min="60" type="button">60</button>
+        <button class="pill" data-min="75" type="button">75</button>
+        <button class="pill" data-min="90" type="button">90</button>
+        <button class="pill" data-min="105" type="button">105</button>
+        <button class="pill" data-min="120" type="button">120</button>
+        <button class="pill" data-min="135" type="button">135</button>
+        <input id="manualMin" type="number" min="15" step="5" placeholder="manuell" style="max-width:130px" />
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <div id="stickySearch">
+      <div class="row">
+        <select id="sessionMode">
+          <option value="all">Komplette Checkliste</option>
+          <option value="favorites">Nur Favoriten</option>
+          <option value="recent">Zuletzt geübt</option>
+        </select>
+        <input id="searchItems" placeholder="Suchen…" />
+        <button id="btnToggleAll" class="pill" type="button">Alle einklappen</button>
+        <button id="btnDensity" class="pill" type="button">Grid: Kompakt</button>
+        <button id="btnIssues" class="pill" type="button" title="Nur zuletzt ✕/○">Baustellen (✕/○)</button>
+      </div>
+    </div>
+    <div id="sessionItems"></div>
+
+    <div class="sep"></div>
+    <label>Notizen zur Stunde</label>
+    <textarea id="sessionNotes" placeholder="z.B. Route, Wetter, Besonderheiten"></textarea>
+    <div class="row">
+      <div class="space"></div>
+      <button id="saveSession" class="primary" type="button">Stunde speichern</button>
+    </div>
+  </section>
+
+  <!-- Auswertung -->
+  <section id="tab-report" class="card" style="display:none">
+    <div class="row">
+      <select id="reportStudent"></select>
+      <button id="btnReportType" class="pill" type="button" title="Zwischen Gesamt / nur PrfV umschalten">Report: Gesamt</button>
+      <select id="reportSort">
+        <option value="default">Sortierung: Vorlage</option>
+        <option value="weak">Schwächste zuerst</option>
+        <option value="most">Meist geübt</option>
+        <option value="recentBad">Zuletzt auffällig</option>
+      </select>
+      <div class="space"></div>
+      <span id="progressChips"></span>
+    </div>
+    <div class="row" style="margin-top:.5rem">
+      <button id="btnHeatmap" class="pill" type="button">Heatmap: AUS</button>
+      <div class="space"></div>
+      <button id="btnPrintMinimal" class="ghost" type="button">Drucken (minimal)</button>
+      <button id="btnPrintDetailed" class="ghost" type="button">Drucken (detailliert)</button>
+      <button id="btnPrintHeft" class="ghost" type="button">Stundenheft (PDF)</button>
+      <button id="btnPrintPrfV" class="ghost" type="button" title="Nur PrfV drucken">PrfV drucken</button>
+      <button id="btnCSVPrfV" class="ghost" type="button" title="Nur PrfV exportieren (CSV)">PrfV CSV</button>
+    </div>
+    <div class="sep"></div>
+    <div id="stellenCheckWrap"></div>
+    <div id="reportContent"></div>
+  </section>
+
+  <!-- Einstellungen -->
+  <section id="tab-settings" class="card" style="display:none">
+    <p class="hint">Hier passt du die Checkliste an (Kategorien & Punkte). Tippe auf ★ für Favoriten. Änderungen gelten sofort für künftige Stunden.</p>
+    <div id="templateEditor"></div>
+    <div class="row" style="margin-top:.6rem">
+      <button id="btnAddCategory" class="pill" type="button">+ Kategorie</button>
+      <button id="btnResetTemplate" class="ghost" type="button">Vorlage zurücksetzen</button>
+      <div class="space"></div>
+      <button id="btnExportTemplate" class="pill" type="button">Vorlage exportieren</button>
+      <input id="importTemplateFile" type="file" accept="application/json" style="display:none" />
+      <button id="btnImportTemplate" class="pill" type="button">Vorlage importieren</button>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Dock -->
+<div class="bottomDock">
+  <div class="group" id="dockActions">
+    <button class="action" id="dockSave" type="button">💾 Speichern</button>
+    <button class="action" id="dockWizard" type="button">🧭 Assistent</button>
+    <button class="action" id="dockReport" type="button">📊 Report</button>
+    <button class="action" id="dockSearch" type="button">🔎 Suchen</button>
+  </div>
+  <div class="group space" id="dockCombos"></div>
+  <div class="group" id="dockDurations">
+    <button class="pres" data-min="45" type="button">45</button>
+    <button class="pres" data-min="60" type="button">60</button>
+    <button class="pres" data-min="75" type="button">75</button>
+    <button class="pres" data-min="90" type="button">90</button>
+    <button class="pres" data-min="105" type="button">105</button>
+    <button class="pres" data-min="120" type="button">120</button>
+    <button class="pres" data-min="135" type="button">135</button>
+  </div>
+</div>
+
+<!-- Modal: Stundendetail -->
+<div class="modal" id="modal">
+  <div class="modalCard">
+    <div class="row">
+      <h3 id="modalTitle" class="space">Stundendetail</h3>
+      <span class="badge" id="modalTypes"></span>
+      <button id="modalClose" class="pill" type="button">Schließen</button>
+    </div>
+    <div id="modalBody"></div>
+    <div class="row">
+      <div class="space"></div>
+      <button id="modalPrint" type="button">Diese Stunde drucken</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Start-Assistent -->
+<div class="modal" id="wizard">
+  <div class="modalCard">
+    <div class="row">
+    <h3 class="space">Start-Assistent</h3>
+    <button id="wizardClose" class="pill" type="button">Schließen</button>
+    </div>
+    <div id="wizardBody"></div>
+    <div class="row">
+      <button id="wizardBack" class="pill" type="button">← Zurück</button>
+      <div class="space"></div>
+      <button id="wizardNext" class="primary" type="button">Weiter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- PRINT AREA -->
+<div id="printArea"></div>
+
+<input id="importFile" type="file" accept="application/json" style="display:none" />
+
+<script>
+(function(){
+var APP_VERSION=6.7;
+var DB_KEY='fahrschul_logger_pwa_v6_7';
+function $(s){return document.querySelector(s)}
+function $all(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+function uid(){return Math.random().toString(36).slice(2,10)}
+function todayISO(){return new Date().toISOString().slice(0,16)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])}
+function fmt(dt){return new Date(dt).toLocaleString('de-DE')}
+
+var state={
+  students:[],lessons:[],template:[],selectedStudentId:null,reportMode:'all',
+  combos:[{label:'90 ÜL',spec:'ÜL:90'},{label:'135 ÜL',spec:'ÜL:135'},{label:'135 NF',spec:'NF:135'},{label:'45 ÜL + 90 BAB',spec:'ÜL:45|BAB:90'}],
+  ui:{density:'compact',openCats:{},issuesOnly:false,onlyOpenStellen:false,heatmap:false,showAdv:false},
+  lastBackup:null
+};
+
+function save(){try{localStorage.setItem(DB_KEY, JSON.stringify(state))}catch(e){}}
+function load(){
+  var raw=localStorage.getItem(DB_KEY);
+  if(raw){ try{var obj=JSON.parse(raw); for(var k in obj){ state[k]=obj[k]; }}catch(e){} }
+  if(!state.template.length){
+    state.template=[
+      {name:'Fahrverhalten',items:[
+        {key:'anfahren',label:'Anfahren',fav:true},
+        {key:'schalten',label:'Schalten'},
+        {key:'bremsen',label:'Bremsen dosiert'},
+        {key:'lenken',label:'Lenken / Spurhaltung',fav:true},
+        {key:'geschwindigkeit',label:'Geschwindigkeit angepasst'},
+        {key:'abstand',label:'Sicherheitsabstand'}
+      ]},
+      {name:'Beobachtung',items:[
+        {key:'spiegel',label:'Spiegelblick',fav:true},
+        {key:'schulterblick',label:'Schulterblick',fav:true},
+        {key:'blickfuehrung',label:'Blickführung'}
+      ]},
+      {name:'Aufgaben',items:[
+        {key:'einparken_rueck_rechts',label:'Einparken rückwärts nach rechts',fav:true},
+        {key:'einparken_liegend',label:'Längsparken rückwärts'},
+        {key:'querparken',label:'Querparken (Supermarkt)'},
+        {key:'wendestelle',label:'Umkehren (zeitgemäß)'}
+      ]},
+      {name:'Verkehrssituationen',items:[
+        {key:'vorfahrt',label:'Vorfahrt / Rechts vor Links'},
+        {key:'zebrastreifen',label:'Verhalten am Zebrastreifen',fav:true},
+        {key:'kreisverkehr',label:'Kreisverkehr'},
+        {key:'ampel',label:'Ampel / Abbiegen'}
+      ]},
+      {name:'Stellen (ortsbezogen)',items:[
+        {key:'stelle_1',label:'Beispielstelle 1'},
+        {key:'stelle_2',label:'Beispielstelle 2'},
+        {key:'stelle_3',label:'Beispielstelle 3'}
+      ]}
+    ];
+  }
+  save();
+}
+
+// Orientation
+function setLandscapeClass(){ var isLandscape = (window.innerWidth > window.innerHeight); document.body.classList.toggle('landscape', isLandscape); }
+window.addEventListener('resize', setLandscapeClass);
+window.addEventListener('orientationchange', setLandscapeClass);
+
+// Tabs
+function setTab(name){
+  $all('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  $('#tab-students').style.display = name==='students'? '': 'none';
+  $('#tab-session').style.display  = name==='session' ? '': 'none';
+  $('#tab-report').style.display   = name==='report'  ? '': 'none';
+  $('#tab-settings').style.display = name==='settings'? '': 'none';
+}
+$all('.tab').forEach(t=>t.addEventListener('click',e=>setTab(e.currentTarget.dataset.tab)));
+
+// Students
+function renderStudents(){
+  var list=$('#studentList'); if(list){ list.innerHTML='';
+    var showArch=$('#toggleArchive') && $('#toggleArchive').checked;
+    state.students.forEach(s=>{
+      if(!showArch && s.archived) return;
+      var div=document.createElement('div'); div.className='item';
+      div.innerHTML='<div class="space">'+esc(s.name)+(s.archived?' <span class="muted">(archiviert)</span>':'')+'</div>\
+      <button class="pill small" data-act="sel" data-id="'+s.id+'" type="button" '+(s.archived?'disabled':'')+'>Auswählen</button>\
+      <button class="pill small" data-act="'+(s.archived?'unarc':'arc')+'" data-id="'+s.id+'" type="button">'+(s.archived?'Reaktivieren':'Archivieren')+'</button>\
+      <button class="pill small" data-act="del" data-id="'+s.id+'" type="button">Löschen</button>';
+      list.appendChild(div);
+    });
+  }
+  function opts(filterArchived){
+    return '<option value="">— auswählen —</option>'+state.students.filter(s=>filterArchived?true:!s.archived).map(s=>'<option value="'+s.id+'">'+esc(s.name)+'</option>').join('');
+  }
+  if($('#sessionStudent')) $('#sessionStudent').innerHTML=opts(false);
+  if($('#reportStudent')) $('#reportStudent').innerHTML=opts(true);
+}
+function selectStudent(id){
+  state.selectedStudentId=id; save();
+  var s=state.students.find(x=>x.id===id);
+  if($('#selectedStudentName')) $('#selectedStudentName').textContent=s? s.name:'Keiner ausgewählt';
+  if($('#studentNotes')) $('#studentNotes').value=s? (s.notes||''):'';
+  var tbody=$('#lastLessonsTable tbody'); if(!tbody) return; tbody.innerHTML='';
+  var rows=state.lessons.filter(l=>l.studentId===id).sort((a,b)=>b.dateISO.localeCompare(a.dateISO)).slice(0,10);
+  rows.forEach(l=>{
+    var items=(l.prfvItems&&l.prfvItems.length)?l.prfvItems:l.items;
+    var avg=averageScore(items).toFixed(1);
+    var tr=document.createElement('tr'); tr.innerHTML='<td>'+fmt(l.dateISO)+'</td><td>'+items.filter(i=>i.status!=='none').length+'</td><td>'+avg+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function averageScore(items){
+  var vals=(items||[]).filter(i=>i.status!=='none').map(i=> i.status==='good'?3 : i.status==='ok'?2 : 1);
+  if(!vals.length) return 0; return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+
+// Toast
+function showToast(msg){ var el=$('#toast'); if(!el) return; el.textContent=msg; el.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(()=>el.classList.remove('show'),2200); }
+
+// History
+function historyForItem(studentId,key,prfvOnly){
+  var h={good:0,ok:0,bad:0,done:false,last:null};
+  state.lessons.filter(l=>l.studentId===studentId).forEach(l=>{
+    var arr=prfvOnly? (l.prfvItems||[]) : ((l.prfvItems&&l.prfvItems.length)? [] : (l.items||[]));
+    arr.forEach(it=>{ if(it.key===key){ 
+      if(it.status==='good')h.good++; else if(it.status==='ok')h.ok++; else if(it.status==='bad')h.bad++;
+      if(it.status!=='none' || (it.note&&it.note.trim())) h.done=true;
+      h.last = {status: it.status, date: l.dateISO};
+    }});
+  });
+  return h;
+}
+
+// Issues-only filter
+$('#btnIssues').addEventListener('click',function(){ state.ui.issuesOnly = !state.ui.issuesOnly; save(); this.classList.toggle('active', state.ui.issuesOnly); renderSessionItems(); });
+
+// Session render
+function renderSessionItems(){
+  var wrap=$('#sessionItems'); wrap.innerHTML='';
+  var items=sessionItemsSource();
+  var byCat={}; items.forEach(i=>{(byCat[i.cat]||(byCat[i.cat]=[])).push(i)});
+  Object.keys(byCat).forEach(cat=>{
+    var block=document.createElement('div'); block.className='catBlock';
+    var head=document.createElement('div'); head.className='catHeader';
+    var grid=document.createElement('div'); grid.className='tileGrid'+(state.ui.density==='compact'?' compact':'');
+    var isOpen=!!(state.ui.openCats && state.ui.openCats[cat]);
+    grid.style.display=isOpen?'grid':'none';
+
+    if(cat==='Stellen (ortsbezogen)'){
+      head.innerHTML='<span>'+esc(cat)+'</span><div class="right"><button class="pill" id="btnOnlyOpenStellen" type="button">'+(state.ui.onlyOpenStellen?'Nur offene: AN':'Nur offene: AUS')+'</button> <span class="chip">Highlight aktiv</span> <button class="pill btnToggle" type="button">'+(isOpen?'Zuklappen':'Aufklappen')+'</button></div>';
+    } else if(cat==='Aufgaben'){
+      head.innerHTML='<span>'+esc(cat)+'</span><div class="right"><span class="chip">Highlight aktiv</span> <button class="pill btnToggle" type="button">'+(isOpen?'Zuklappen':'Aufklappen')+'</button></div>';
+    } else {
+      head.innerHTML='<span>'+esc(cat)+'</span><div class="right"><button class="pill btnToggle" type="button">'+(isOpen?'Zuklappen':'Aufklappen')+'</button></div>';
+    }
+    block.appendChild(head);
+
+    byCat[cat].forEach(it=>{
+      var h=historyForItem(state.selectedStudentId,it.key,false);
+      if(state.ui.issuesOnly){
+        var lastBad = h.last && (h.last.status==='ok' || h.last.status==='bad');
+        if(!lastBad) return;
+      }
+      var tile=buildTile(it,h,cat);
+      var done = h.done;
+      tile.classList.toggle('done', done);
+      tile.classList.toggle('open', !done);
+      if(cat==='Stellen (ortsbezogen)' && state.ui.onlyOpenStellen && done){ tile.style.display='none'; }
+      grid.appendChild(tile);
+    });
+    head.querySelector('.btnToggle').addEventListener('click',e=>{
+      var open=grid.style.display!=='none'; grid.style.display=open?'none':'grid';
+      state.ui.openCats[cat]=!open; save();
+      e.currentTarget.textContent=open?'Aufklappen':'Zuklappen';
+    });
+    block.appendChild(grid); 
+    wrap.appendChild(block);
+
+    if(cat==='Stellen (ortsbezogen)'){
+      var btnOnly=head.querySelector('#btnOnlyOpenStellen');
+      btnOnly.addEventListener('click',function(){
+        state.ui.onlyOpenStellen=!state.ui.onlyOpenStellen; save();
+        this.textContent = state.ui.onlyOpenStellen?'Nur offene: AN':'Nur offene: AUS';
+        renderSessionItems();
+      });
+    }
+  });
+
+  document.body.classList.add('openDim','openHighlight');
+  updateToggleAllLabel();
+}
+
+function updateToggleAllLabel(){ var anyOpen=$all('.tileGrid').some(el=>el.style.display!=='none'); var btn=$('#btnToggleAll'); if(btn) btn.textContent=anyOpen?'Alle einklappen':'Alle ausklappen'; }
+
+function sessionItemsSource(){
+  var mode=$('#sessionMode').value, q=($('#searchItems').value||'').toLowerCase();
+  var items=[];
+  if(mode==='recent' && state.selectedStudentId){
+    var recent=state.lessons.filter(l=>l.studentId===state.selectedStudentId).slice(-5);
+    var map={};
+    recent.forEach(l=>{
+      (l.items||[]).forEach(i=>map[i.key]={cat:i.cat,key:i.key,label:i.label,fav:false});
+      (l.prfvItems||[]).forEach(i=>map[i.key]={cat:i.cat,key:i.key,label:i.label,fav:false});
+    });
+    items=Object.values(map);
+  }else{
+    state.template.forEach(cat=>cat.items.forEach(it=>items.push({cat:cat.name,key:it.key,label:it.label,fav:!!it.fav})));
+    if(mode==='favorites') items=items.filter(i=>i.fav);
+  }
+  if(q) items=items.filter(i=>(i.label+' '+i.cat).toLowerCase().includes(q));
+  return items;
+}
+
+// Build tile
+function buildTile(item, history, catName){
+  var wrap=document.createElement('div'); wrap.className='tile'; 
+  wrap.dataset.key=item.key; wrap.dataset.label=item.label; wrap.dataset.cat=item.cat;
+  wrap.innerHTML='<div class="tileHeader">\
+    <div class="tileLabel">'+esc(item.label)+'</div>\
+    <button class="pill noteToggle" type="button">📝</button>\
+  </div>\
+  <div class="rateBar">\
+    <button class="g" data-rate="good" type="button">✓</button>\
+    <button class="o" data-rate="ok" type="button">○</button>\
+    <button class="r" data-rate="bad" type="button">✕</button>\
+    <button class="n" data-rate="none" type="button">—</button>\
+  </div>\
+  <div class="miniCounts">Bisher: ✓ '+(history.good||0)+' | ○ '+(history.ok||0)+' | ✕ '+(history.bad||0)+'</div>\
+  <div class="noteArea"><textarea class="itNote" placeholder="Kurznotiz zu diesem Punkt…"></textarea></div>';
+  var noteArea=wrap.querySelector('.noteArea');
+  var ta=wrap.querySelector('.itNote');
+  var firstDoneRecorded = history.done===true;
+
+  wrap.querySelectorAll('[data-rate]').forEach(btn=>btn.addEventListener('click',e=>{
+    var rate=e.currentTarget.dataset.rate;
+    wrap.dataset.status=rate;
+    wrap.querySelectorAll('[data-rate]').forEach(b=>b.style.outline='none');
+    e.currentTarget.style.outline='2px solid #4da3ff';
+    if(rate==='ok' || rate==='bad'){ noteArea.style.display='block'; setTimeout(()=>ta.focus(), 0); }
+    else if(rate==='good'){ if(!(ta.value||'').trim()) noteArea.style.display='none'; }
+    var isNowDone = (rate!=='none') || ((ta.value||'').trim().length>0);
+    if(catName==='Stellen (ortsbezogen)' && !firstDoneRecorded && isNowDone){
+      firstDoneRecorded = true; 
+      showToast('Stelle „'+item.label+'“ erstmals erledigt – stark!');
+    }
+    wrap.classList.toggle('done', isNowDone);
+    wrap.classList.toggle('open', !isNowDone);
+  }));
+  var noteBtn=wrap.querySelector('.noteToggle');
+  noteBtn.addEventListener('click',()=>{
+    noteArea.style.display = noteArea.style.display==='none' || noteArea.style.display==='' ? 'block' : 'none';
+    if(noteArea.style.display==='block') setTimeout(()=>ta.focus(), 0);
+  });
+  // long press opens note, short tap cycles
+  let pressTimer=null;
+  wrap.addEventListener('mousedown',startPress); wrap.addEventListener('touchstart',startPress,{passive:true});
+  wrap.addEventListener('mouseup',endPress); wrap.addEventListener('mouseleave',endPress); wrap.addEventListener('touchend',endPress);
+  function startPress(ev){ if(ev.target.closest('button,textarea,input')) return; pressTimer=setTimeout(()=>{ noteBtn.click(); },500); }
+  function endPress(ev){ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } else return;
+    if(ev.type==='touchend' || ev.type==='mouseup'){
+      if(ev.target.closest('button,textarea,input')) return;
+      cycle();
+    }
+  }
+  function cycle(){
+    var order=['none','good','ok','bad']; var cur=wrap.dataset.status||'none';
+    var idx=order.indexOf(cur); var next=order[(idx+1)%order.length];
+    var btn=wrap.querySelector('[data-rate="'+next+'"]'); if(btn) btn.click();
+  }
+  return wrap;
+}
+
+// Density toggle
+$('#btnDensity').addEventListener('click',function(){
+  state.ui.density = state.ui.density==='compact' ? 'spacious' : 'compact'; save();
+  this.textContent = 'Grid: '+(state.ui.density==='compact'?'Kompakt':'Groß');
+  $all('.tileGrid').forEach(el=>{ el.classList.toggle('compact', state.ui.density==='compact'); });
+});
+
+// Toggle all
+$('#btnToggleAll').addEventListener('click',function(){
+  var anyOpen=$all('.tileGrid').some(el=>el.style.display!=='none');
+  $all('.catBlock').forEach(block=>{
+    var grid=block.querySelector('.tileGrid'), headBtn=block.querySelector('.btnToggle'), cat=block.querySelector('.catHeader span').textContent;
+    grid.style.display=anyOpen?'none':'grid';
+    state.ui.openCats[cat]=!anyOpen; save();
+    if(headBtn) headBtn.textContent=anyOpen?'Aufklappen':'Zuklappen';
+  });
+  updateToggleAllLabel();
+});
+
+// ADV toggle
+$('#btnToggleAdv').addEventListener('click',function(){
+  state.ui.showAdv = !state.ui.showAdv; save();
+  document.body.classList.toggle('show-adv', state.ui.showAdv);
+});
+
+// Types & minutes render
+function renderTypeDurations(){
+  var cont=$('#typeDurations'); if(!cont) return; cont.innerHTML='';
+  var act=$all('#lessonTypes .pill.active').map(b=>b.dataset.type);
+  act.forEach(t=>{
+    var row=document.createElement('div'); row.className='row';
+    row.innerHTML='<span class="pill">'+t+'</span>\
+    <input type="number" min="15" step="15" value="45" data-type="'+t+'" style="max-width:120px" />\
+    <span class="muted">Minuten</span>';
+    cont.appendChild(row);
+  });
+}
+$all('#lessonTypes .pill').forEach(b=>b.addEventListener('click',function(){
+  this.classList.toggle('active'); renderTypeDurations();
+}));
+$all('#typePresets .pill[data-min]').forEach(b=>b.addEventListener('click',function(){
+  var m=parseInt(this.dataset.min,10)||45;
+  $all('#typeDurations input[type="number"]').forEach(inp=>inp.value=m);
+}));
+$('#manualMin').addEventListener('change',function(){
+  var m=parseInt(this.value,10)||45;
+  $all('#typeDurations input[type="number"]').forEach(inp=>inp.value=m);
+});
+
+// Combos in Dock
+function renderCombos(){
+  var cont=document.getElementById('dockCombos'); cont.innerHTML='';
+  state.combos.forEach(c=>{
+    var btn=document.createElement('button'); btn.className='pres'; btn.textContent=c.label; btn.addEventListener('click',()=>applyCombo(c.spec));
+    cont.appendChild(btn);
+  });
+}
+function applyCombo(spec){
+  // Example: "ÜL:45|BAB:90"
+  $all('#lessonTypes .pill').forEach(b=>b.classList.remove('active'));
+  var parts=spec.split('|');
+  parts.forEach(p=>{
+    var [t,m]=p.split(':');
+    var pill=$all('#lessonTypes .pill').find(x=>x.dataset.type===t); if(pill){ pill.classList.add('active'); }
+  });
+  renderTypeDurations();
+  parts.forEach(p=>{
+    var [t,m]=p.split(':');
+    var inp=document.querySelector('#typeDurations input[data-type="'+t+'"]'); if(inp){ inp.value=parseInt(m||'45',10); }
+  });
+  document.body.classList.add('show-adv');
+  state.ui.showAdv=true; save();
+}
+
+// Save session
+function selectedTypesWithMinutes(){
+  var act=$all('#lessonTypes .pill.active').map(b=>b.dataset.type);
+  return act.map(t=>{ var inp=document.querySelector('#typeDurations input[data-type="'+t+'"]'); var m=parseInt(inp?inp.value:'',10); if(!m) m=45; return {type:t,minutes:m}; });
+}
+function saveSession(){
+  var studentId=$('#sessionStudent').value || state.selectedStudentId;
+  if(!studentId){ alert('Bitte Schüler wählen.'); return; }
+  var items=[]; $all('.tile').forEach(t=>{ 
+    var st=t.dataset.status||'none'; 
+    var noteEl=t.querySelector('.itNote'); var note=noteEl? noteEl.value.trim():'';
+    items.push({cat:t.dataset.cat,key:t.dataset.key,label:t.dataset.label,status:st,note:note}); 
+  });
+  var types=selectedTypesWithMinutes(); var inPrfV=types.some(t=>t.type==='PrfV');
+  var lesson={id:uid(),studentId:studentId,dateISO:$('#sessionDate').value||todayISO(),items:inPrfV?[]:items,prfvItems:inPrfV?items:[],notes:$('#sessionNotes').value||'',types:types};
+  state.lessons.push(lesson); save(); $('#sessionNotes').value=''; renderSessionItems(); showToast('Stunde gespeichert'); selectStudent(studentId); renderReport();
+}
+$('#saveSession').addEventListener('click',saveSession);
+
+// Report helpers (unchanged parts shortened in this comment block)
+function sumStats(lessons, prfvOnly){
+  var agg={};
+  lessons.forEach(l=>{
+    var arr = prfvOnly ? (l.prfvItems||[]) : ((state.reportMode==='prfv') ? (l.prfvItems||[]) : ((l.prfvItems&&l.prfvItems.length)?[]:(l.items||[])));
+    arr.forEach(it=>{
+      var a=agg[it.key]||(a={label:it.label,cat:it.cat,good:0,ok:0,bad:0,total:0}); agg[it.key]=a;
+      if(it.status==='good') a.good++;
+      else if(it.status==='ok') a.ok++;
+      else if(it.status==='bad') a.bad++;
+      if(it.status!=='none') a.total++;
+    });
+  });
+  return agg;
+}
+function score01(st){ if(!st.total) return 0; return (st.good*3 + st.ok*2 + st.bad*1) / (st.total*3); }
+function scoreColor(st){
+  var s=score01(st);
+  var r,g,b;
+  if(s<0.5){ var t=s/0.5; r=Math.round(231+(243-231)*t); g=Math.round(76+(156-76)*t); b=Math.round(60+(18-60)*t); }
+  else{ var t=(s-0.5)/0.5; r=Math.round(243+(46-243)*t); g=Math.round(156+(204-156)*t); b=Math.round(18+(113-18)*t); }
+  return 'rgb('+r+','+g+','+b+')';
+}
+
+// Progress chips
+function progressChips(lessons){
+  function blocks(m){return Math.floor((m||0)/45)}
+  function minutesByType(lessons){
+    var m={'Übung':0,'ÜL':0,'BAB':0,'NF':0,'PrfV':0};
+    lessons.forEach(l=>(l.types||[]).forEach(t=>{ if(typeof t==='string') m[t]=(m[t]||0)+45; else m[t.type]=(m[t.type]||0)+(t.minutes||45); }));
+    return m;
+  }
+  var minutes=minutesByType(lessons);
+  var d=$('#progressChips'); if(!d) return; d.innerHTML='';
+  [['ÜL',5],['BAB',4],['NF',3]].forEach(([typ,max])=>{
+    var done=blocks(minutes[typ]); var wrap=document.createElement('span'); wrap.className='chip keep';
+    wrap.innerHTML='<span>'+typ+': '+done+'/'+max+'</span>'; d.appendChild(wrap); d.appendChild(document.createTextNode(' '));
+  });
+  var pr=document.createElement('span'); pr.className='chip keep'; pr.textContent='PrfV: '+blocks(minutes.PrfV); d.appendChild(pr);
+}
+
+// Heatmap / Report renderers
+function renderHeatmap(studentId){
+  var cont=$('#reportContent'); cont.innerHTML='';
+  var lessons=state.lessons.filter(l=>l.studentId===studentId);
+  if(!lessons.length){ cont.innerHTML='<p class="hint">Noch keine Stunden erfasst.</p>'; return; }
+  var agg=sumStats(lessons, state.reportMode==='prfv');
+  var byCat={}; Object.keys(agg).forEach(k=>{ var v=agg[k]; (byCat[v.cat]||(byCat[v.cat]=[])).push(v); });
+  var order=state.template.map(c=>c.name);
+  Object.keys(byCat).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).forEach(cat=>{
+    var block=document.createElement('div'); block.className='hmBlock';
+    var head=document.createElement('div'); head.className='hmHead'; head.innerHTML='<div>'+esc(cat)+'</div><div class="right heatLegend"><span class="box" style="background:rgba(231,76,60,.8)"></span>✕&nbsp;&nbsp;<span class="box" style="background:rgba(243,156,18,.85)"></span>○&nbsp;&nbsp;<span class="box" style="background:rgba(46,204,113,.8)"></span>✓</div>';
+    block.appendChild(head);
+    byCat[cat].forEach(v=>{
+      var row=document.createElement('div'); row.className='hmRow';
+      var bar=document.createElement('div'); bar.className='hmBar';
+      var total=v.total||0, g=v.good||0, o=v.ok||0, b=v.bad||0;
+      var gW = total? (g/total*100):0, oW = total? (o/total*100):0, bW = total? (b/total*100):0;
+      var segBad=document.createElement('div'); segBad.className='hmBad'; segBad.style.width=bW+'%';
+      var segOk=document.createElement('div'); segOk.className='hmOk'; segOk.style.width=oW+'%';
+      var segGood=document.createElement('div'); segGood.className='hmGood'; segGood.style.width=gW+'%';
+      bar.appendChild(segBad); bar.appendChild(segOk); bar.appendChild(segGood);
+      var score=document.createElement('div'); score.className='hmScore'; var s01=score01(v); score.textContent=Math.round(s01*100)+'%'; score.style.color=scoreColor(v);
+      row.innerHTML='<div>'+esc(v.label)+' <span class="muted">('+g+'✓ / '+o+'○ / '+b+'✕)</span></div>';
+      row.appendChild(score);
+      row.appendChild(bar);
+      block.appendChild(row);
+    });
+    cont.appendChild(block);
+  });
+}
+function renderReportList(studentId){
+  var lessons=state.lessons.filter(l=>l.studentId===studentId);
+  if(!lessons.length){ $('#reportContent').innerHTML='<p class="hint">Noch keine Stunden erfasst.</p>'; return; }
+  var source=(state.reportMode==='prfv');
+  var agg={}, order=state.template.map(c=>c.name);
+  lessons.forEach(l=>{
+    ((source? l.prfvItems : (l.prfvItems&&l.prfvItems.length? []: l.items))||[]).forEach(it=>{
+      var a=agg[it.key]||(a={label:it.label,cat:it.cat,good:0,ok:0,bad:0,total:0,lastBad:0}); agg[it.key]=a;
+      if(it.status!=='none'){a.total++; if(it.status==='good')a.good++; else if(it.status==='ok')a.ok++; else {a.bad++; a.lastBad=Math.max(a.lastBad, new Date(l.dateISO).getTime());}}
+    });
+  });
+  var rows=Object.values(agg);
+  var byCat={}; rows.forEach(v=>{(byCat[v.cat]||(byCat[v.cat]=[])).push(v)});
+  var cats=Object.keys(byCat).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  var html='';
+  cats.forEach(cat=>{
+    html+='<div class="catBlock"><div class="catHeader"><span>'+esc(cat)+'</span></div>';
+    byCat[cat].forEach(v=>{
+      var score=v.total?((v.good*3+v.ok*2+v.bad*1)/(v.total*3)):0;
+      html+='<div class="row" style="padding:.4rem .8rem;border-top:1px dashed var(--line)">\
+      <div class="space">'+esc(v.label)+'</div>\
+      <div>✓ '+v.good+' • ○ '+v.ok+' • ✕ '+v.bad+' <span class="muted">• '+(score*100|0)+'%</span></div>\
+      </div>';
+    });
+    html+='</div>';
+  });
+  html+='<div class="sep"></div><label>Letzte Stunden (Tippen für Detail)</label>\
+  <table class="table" id="lessonsTable"><thead><tr><th>Datum</th><th>Typ(e)</th><th>Notizen</th><th>Ø</th></tr></thead><tbody>';
+  lessons.slice().sort((a,b)=>b.dateISO.localeCompare(a.dateISO)).slice(0,50).forEach(l=>{
+    var items=(l.prfvItems&&l.prfvItems.length)?l.prfvItems:l.items;
+    var avg=averageScore(items).toFixed(1);
+    var types=(l.types||[]).map(t=>typeof t==='string'? t : (t.type+'('+ (t.minutes||45)+')')).join(' | ');
+    html+='<tr class="clickable" data-id="'+l.id+'"><td>'+fmt(l.dateISO)+'</td><td>'+esc(types)+'</td><td>'+esc(l.notes||'')+'</td><td>'+avg+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  $('#reportContent').innerHTML=html;
+  var table=$('#lessonsTable'); if(table){ table.addEventListener('click',function(e){ var tr=e.target.closest('tr[data-id]'); if(!tr) return; openLessonModal(tr.dataset.id); }); }
+}
+
+// Wrapper
+function renderReport(){
+  var studentId=$('#reportStudent').value || state.selectedStudentId;
+  if(!studentId){ $('#reportContent').innerHTML='<p class="hint">Bitte Schüler wählen.</p>'; $('#stellenCheckWrap').innerHTML=''; return; }
+  var lessons=state.lessons.filter(l=>l.studentId===studentId);
+  if(!lessons.length){ $('#reportContent').innerHTML='<p class="hint">Noch keine Stunden erfasst.</p>'; $('#stellenCheckWrap').innerHTML=''; return; }
+  progressChips(lessons);
+  renderStellenCheck(studentId);
+  if(state.ui.heatmap){ renderHeatmap(studentId); } else { renderReportList(studentId); }
+}
+
+// Stellen-Check
+function renderStellenCheck(studentId){
+  var wrap=$('#stellenCheckWrap'); if(!wrap) return;
+  var catName='Stellen (ortsbezogen)';
+  var cat=state.template.find(c=>c.name===catName);
+  if(!cat){ wrap.innerHTML=''; return; }
+  var items=cat.items||[];
+  var doneSet=new Set();
+  state.lessons.filter(l=>l.studentId===studentId).forEach(l=>{
+    (l.items||[]).concat(l.prfvItems||[]).forEach(it=>{
+      if(it.cat===catName && (it.status!=='none' || (it.note&&it.note.trim()))) doneSet.add(it.key);
+    });
+  });
+  var done=items.filter(i=>doneSet.has(i.key));
+  var missing=items.filter(i=>!doneSet.has(i.key));
+  var html='<div class="catBlock"><div class="catHeader"><span>Stellen-Check</span><div class="right"><span class="chip">'+done.length+'/'+items.length+' erledigt</span></div></div>';
+  html+='<div class="row" style="padding:.4rem .8rem"><b>Erledigt:</b> '+(done.length? done.map(i=>esc(i.label)).join(', ') : '—')+'</div>';
+  html+='<div class="row" style="padding:.2rem .8rem .6rem"><b>Offen:</b> '+(missing.length? missing.map(i=>esc(i.label)).join(', ') : '—')+'</div>';
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+
+// Lesson modal
+function openLessonModal(lessonId){
+  var l=state.lessons.find(x=>x.id===lessonId); if(!l) return;
+  $('#modalTitle').textContent='Stunde am '+fmt(l.dateISO);
+  $('#modalTypes').textContent=(l.types||[]).map(t=>typeof t==='string'? t : (t.type+' '+(t.minutes||45)+'min')).join(' • ');
+  var items=(l.prfvItems&&l.prfvItems.length)?l.prfvItems:l.items;
+  var byCat={}; (items||[]).forEach(it=>{(byCat[it.cat]||(byCat[it.cat]=[])).push(it)});
+  var order=state.template.map(c=>c.name);
+  var cats=Object.keys(byCat).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  var html='';
+  cats.forEach(cat=>{
+    html+='<div class="catBlock"><div class="catHeader"><span>'+esc(cat)+'</span></div>';
+    byCat[cat].forEach(it=>{
+      html+='<div class="row" style="padding:.4rem .8rem;border-top:1px dashed var(--line)">\
+        <div class="space">'+esc(it.label)+'</div>\
+        <div class="chip"><span>'+ (it.status==='good'?'✓': it.status==='ok'?'○': it.status==='bad'?'✕':'—') +'</span></div>\
+      </div>';
+      if((it.note||'').trim()){ html+='<div class="row" style="padding:.2rem .8rem .6rem"><span class="muted">Notiz:</span> '+esc(it.note.trim())+'</div>'; }
+    });
+    html+='</div>';
+  });
+  html+='<div class="sep"></div><div class="row"><span class="muted">Gesamtnotiz:</span> '+esc(l.notes||'—')+'</div>';
+  $('#modalBody').innerHTML=html;
+  $('#modal').classList.add('show');
+  $('#modalPrint').onclick=function(){ printSingleLesson(l); };
+}
+$('#modalClose').addEventListener('click',()=>$('#modal').classList.remove('show'));
+
+// PRINT bulk & helpers (unchanged from 6.6)
+function buildPrintArea(detailed, prfvOnly){
+  var area=$('#printArea'); area.innerHTML='';
+  var studentId=$('#reportStudent').value || state.selectedStudentId; if(!studentId){ area.innerHTML='<div class="pTitle">Kein Schüler gewählt</div>'; return; }
+  var s=state.students.find(x=>x.id===studentId);
+  var lessons=state.lessons.filter(l=>l.studentId===studentId);
+  if(!lessons.length){ area.innerHTML='<div class="pTitle">Keine Daten</div>'; return; }
+  var hdrTitle = prfvOnly ? 'Prüfungsvorbereitung – ' : 'Fahrschul-Report – ';
+  var h=document.createElement('div');
+  h.innerHTML='<div class="pTitle">'+hdrTitle+esc(s.name)+'</div><div class="pMeta">Stand: '+fmt(new Date())+' • Stunden: '+lessons.length+'</div>';
+  area.appendChild(h);
+
+  var order=state.template.map(c=>c.name);
+  var agg={}, byCat={};
+  lessons.forEach(l=>{
+    var arr = prfvOnly ? (l.prfvItems||[]) : ((state.reportMode==='prfv') ? (l.prfvItems||[]) : ((l.prfvItems&&l.prfvItems.length)?[]:(l.items||[])));
+    arr.forEach(it=>{
+      var a=agg[it.key]||(a={label:it.label,cat:it.cat,good:0,ok:0,bad:0,total:0,notes:[]}); agg[it.key]=a;
+      if(it.status!=='none'){a.total++; if(it.status==='good')a.good++; else if(it.status==='ok')a.ok++; else a.bad++;}
+      if((it.note||'').trim()) a.notes.push(it.note.trim());
+    });
+  });
+  Object.values(agg).forEach(v=>{ (byCat[v.cat]||(byCat[v.cat]=[])).push(v); });
+  Object.keys(byCat).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).forEach(cat=>{
+    var block=document.createElement('div'); block.className='pBlock';
+    var head=document.createElement('div'); head.className='pHead';
+    head.innerHTML='<div>'+esc(cat)+'</div>';
+    block.appendChild(head);
+    byCat[cat].forEach(v=>{
+      var dom=document.createElement('div'); dom.className='pItem';
+      var scoreClass = v.bad>0 ? 'bad' : (v.ok>0 ? 'ok' : (v.good>0 ? 'good' : ''));
+      dom.innerHTML='<div class="space">'+esc(v.label)+' <span class="pBadge">✓ '+v.good+' • ○ '+v.ok+' • ✕ '+v.bad+'</span></div>\
+      <div class="pScore '+scoreClass+'">'+(v.total? Math.round((v.good*3+v.ok*2+v.bad*1)/(v.total*3)*100):0)+'%</div>';
+      block.appendChild(dom);
+      if(detailed && v.notes && v.notes.length){
+        var note=document.createElement('div'); note.className='pNote'; note.textContent='– ' + v.notes.slice(-3).join('\n– ');
+        block.appendChild(note);
+      }
+    });
+    area.appendChild(block);
+  });
+  var ft=document.createElement('div'); ft.className='pFooter';
+  ft.innerHTML='Legende: ✓ gut • ○ mittel • ✕ ausbaufähig.  —  Erstellt am '+fmt(new Date())+'.';
+  area.appendChild(ft);
+}
+function printMinimal(){ document.body.classList.remove('print-detailed'); window.print(); }
+function printDetailed(){ buildPrintArea(true,false); document.body.classList.add('print-detailed'); window.print(); setTimeout(()=>document.body.classList.remove('print-detailed'), 100); }
+function printHeft(){ buildPrintArea(true,false); document.body.classList.add('print-detailed'); window.print(); setTimeout(()=>document.body.classList.remove('print-detailed'), 100); }
+function printPrfV(){ buildPrintArea(true,true); document.body.classList.add('print-detailed'); window.print(); setTimeout(()=>document.body.classList.remove('print-detailed'), 100); }
+$('#btnPrintMinimal').addEventListener('click',printMinimal);
+$('#btnPrintDetailed').addEventListener('click',printDetailed);
+$('#btnPrintHeft').addEventListener('click',printHeft);
+$('#btnPrintPrfV').addEventListener('click',printPrfV);
+
+// CSV Export: only PrfV
+function exportPrfVCSV(){
+  var studentId=$('#reportStudent').value || state.selectedStudentId; if(!studentId){ alert('Bitte Schüler wählen'); return; }
+  var s=state.students.find(x=>x.id===studentId);
+  var lessons=state.lessons.filter(l=>l.studentId===studentId);
+  var rows=[['Datum','Typ/Min','Kategorie','Punkt','Status','Notiz']];
+  lessons.forEach(l=>{
+    var types=(l.types||[]).map(t=>typeof t==='string'? t+' 45' : (t.type+' '+(t.minutes||45))).join(' | ');
+    (l.prfvItems||[]).forEach(it=>{
+      rows.push([fmt(l.dateISO), types, it.cat, it.label, it.status||'none', (it.note||'').replace(/\r?\n/g,' ').trim() ]);
+    });
+  });
+  var csv = rows.map(r=>r.map(v=>{
+    v = String(v).replace(/"/g,'""');
+    return '"'+v+'"';
+  }).join(',')).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download = (s?s.name:'Schueler')+'_PrfV.csv';
+  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);
+}
+$('#btnCSVPrfV').addEventListener('click',exportPrfVCSV);
+
+// Heatmap toggle
+$('#btnHeatmap').addEventListener('click',function(){
+  state.ui.heatmap=!state.ui.heatmap; save();
+  this.textContent='Heatmap: '+(state.ui.heatmap?'AN':'AUS');
+  renderReport();
+});
+
+// Help
+$('#btnHelp').addEventListener('click',function(){
+  alert('Neu in v6.7:\\n• Einstellungen/Template-Editor zurück.\\n• Archiv-Schalter sichtbar.\\n• Start-Assistent repariert.\\n• Erweitert-Panel Toggle gefixt.');
+});
+
+// Students events
+$('#addStudent').addEventListener('click',function(){
+  var name=($('#newStudentName').value||'').trim(); if(!name) return;
+  if(state.students.some(s=>s.name.toLowerCase()===name.toLowerCase())){
+    if(!confirm('Schüler mit diesem Namen existiert bereits. Trotzdem anlegen (Name wird mit (2) ergänzt)?')) return;
+    name = name + ' (2)';
+  }
+  state.students.push({id:uid(),name:name,notes:'',archived:false}); save(); $('#newStudentName').value=''; renderStudents();
+});
+var sl=$('#studentList'); if(sl) sl.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return; var id=b.dataset.id, act=b.dataset.act;
+  var s=state.students.find(x=>x.id===id);
+  if(act==='sel'){ selectStudent(id); if($('#sessionStudent')) $('#sessionStudent').value=id; setTab('session'); }
+  if(act==='arc'){ s.archived=true; save(); renderStudents(); }
+  if(act==='unarc'){ s.archived=false; save(); renderStudents(); }
+  if(act==='del'){ if(confirm('Schüler löschen?')){ state.students=state.students.filter(s=>s.id!==id); state.lessons=state.lessons.filter(l=>l.studentId!==id); if(state.selectedStudentId===id) state.selectedStudentId=null; save(); renderStudents(); selectStudent(state.selectedStudentId); }}
+});
+$('#saveStudentNotes').addEventListener('click',function(){ if(!state.selectedStudentId) return; var s=state.students.find(x=>x.id===state.selectedStudentId); s.notes=$('#studentNotes').value; save(); showToast('Gespeichert'); });
+
+// Sticky search
+$('#sessionMode').addEventListener('change',renderSessionItems);
+$('#searchItems').addEventListener('input',renderSessionItems);
+$('#sessionStudent').addEventListener('change',e=>{state.selectedStudentId=e.target.value; save(); selectStudent(state.selectedStudentId); renderSessionItems(); });
+$('#reportStudent').addEventListener('change',renderReport);
+
+// Dock actions
+$('#dockSave').addEventListener('click',()=>$('#saveSession').click());
+$('#dockWizard').addEventListener('click',()=>$('#btnWizard').click());
+$('#dockReport').addEventListener('click',()=>{ setTab('report'); });
+$('#dockSearch').addEventListener('click',()=>{ $('#searchItems').focus(); });
+
+// Wizard (Start-Assistent)
+var wzStep=0;
+function renderWizard(){
+  var w=$('#wizardBody'); w.innerHTML='';
+  if(wzStep===0){
+    var sSel=document.createElement('div'); sSel.className='col';
+    sSel.innerHTML='<label>Schüler auswählen</label><select id="wzStudent">'+($('#sessionStudent').innerHTML)+'</select>';
+    w.appendChild(sSel);
+    var d=document.createElement('div'); d.className='col'; d.innerHTML='<label>Datum/Uhrzeit</label><input id="wzDate" type="datetime-local" value="'+($('#sessionDate').value||todayISO())+'">';
+    w.appendChild(d);
+  } else if(wzStep===1){
+    var types=document.createElement('div'); types.className='col';
+    types.innerHTML='<label>Fahrstundentyp(en)</label>\
+    <div class="row" id="wzTypes">\
+      <button class="pill" data-type="Übung" type="button">Übung</button>\
+      <button class="pill" data-type="ÜL" type="button">ÜL</button>\
+      <button class="pill" data-type="BAB" type="button">BAB</button>\
+      <button class="pill" data-type="NF" type="button">NF</button>\
+      <button class="pill" data-type="PrfV" type="button">PrfV</button>\
+    </div>\
+    <div class="row" id="wzPresets" style="margin-top:.5rem">\
+      <span class="pill">Presets:</span>\
+      <button class="pill" data-spec="ÜL:90" type="button">90 ÜL</button>\
+      <button class="pill" data-spec="ÜL:135" type="button">135 ÜL</button>\
+      <button class="pill" data-spec="NF:135" type="button">135 NF</button>\
+      <button class="pill" data-spec="ÜL:45|BAB:90" type="button">45 ÜL + 90 BAB</button>\
+    </div>';
+    w.appendChild(types);
+  } else if(wzStep===2){
+    var mins=document.createElement('div'); mins.className='col';
+    mins.innerHTML='<label>Minuten pro ausgewähltem Typ</label><div id="wzDur"></div>\
+    <div class="row" style="margin-top:.5rem">\
+      <button class="pill" data-min="45" type="button">45</button>\
+      <button class="pill" data-min="60" type="button">60</button>\
+      <button class="pill" data-min="75" type="button">75</button>\
+      <button class="pill" data-min="90" type="button">90</button>\
+      <button class="pill" data-min="105" type="button">105</button>\
+      <button class="pill" data-min="120" type="button">120</button>\
+      <button class="pill" data-min="135" type="button">135</button>\
+      <input id="wzManualMin" type="number" min="15" step="5" placeholder="manuell" style="max-width:130px" />\
+    </div>';
+    w.appendChild(mins);
+    // render current selection from step1
+    var act=$all('#wzTypes .pill.active').map(b=>b.dataset.type);
+    var d=document.getElementById('wzDur'); d.innerHTML='';
+    act.forEach(t=>{
+      var row=document.createElement('div'); row.className='row';
+      row.innerHTML='<span class="pill">'+t+'</span>\
+      <input type="number" min="15" step="15" value="45" data-type="'+t+'" style="max-width:120px" />\
+      <span class="muted">Minuten</span>';
+      d.appendChild(row);
+    });
+    $all('#wizardBody [data-min]').forEach(b=>b.addEventListener('click',function(){
+      var m=parseInt(this.dataset.min,10)||45; $all('#wzDur input[type="number"]').forEach(inp=>inp.value=m);
+    }));
+    $('#wzManualMin').addEventListener('change',function(){
+      var m=parseInt(this.value,10)||45; $all('#wzDur input[type="number"]').forEach(inp=>inp.value=m);
+    });
+  } else if(wzStep===3){
+    w.innerHTML='<p class="hint">Fertig! Mit „Weiter“ übernehme ich die Auswahl in den Stunden-Screen.</p>';
+  }
+  // interactions
+  if($('#wzTypes')){
+    $all('#wzTypes .pill').forEach(b=>b.addEventListener('click',function(){
+      this.classList.toggle('active');
+    }));
+    $all('#wzPresets .pill').forEach(b=>b.addEventListener('click',function(){ 
+      var spec=this.dataset.spec; $all('#wzTypes .pill').forEach(x=>x.classList.remove('active'));
+      spec.split('|').forEach(p=>{ var t=p.split(':')[0]; var pill=$all('#wzTypes .pill').find(x=>x.dataset.type===t); if(pill) pill.classList.add('active'); });
+    }));
+  }
+}
+function wizardApply(){
+  if(wzStep<3){ wzStep++; renderWizard(); return; }
+  // commit
+  var stSel=$('#wzStudent'); if(stSel && stSel.value){ state.selectedStudentId=stSel.value; save(); if($('#sessionStudent')) $('#sessionStudent').value=stSel.value; selectStudent(stSel.value); }
+  var date=$('#wzDate'); if(date){ $('#sessionDate').value=date.value; }
+  // copy types+minutes
+  var types=$all('#wzTypes .pill.active').map(b=>b.dataset.type);
+  $all('#lessonTypes .pill').forEach(b=>b.classList.remove('active'));
+  types.forEach(t=>{ var pill=$all('#lessonTypes .pill').find(x=>x.dataset.type===t); if(pill) pill.classList.add('active'); });
+  renderTypeDurations();
+  $all('#wzDur input[type="number"]').forEach(inp=>{
+    var type=inp.dataset.type; var dst=document.querySelector('#typeDurations input[data-type="'+type+'"]'); if(dst) dst.value=inp.value;
+  });
+  document.getElementById('wizard').classList.remove('show');
+  document.body.classList.add('show-adv'); state.ui.showAdv=true; save();
+  showToast('Assistent übernommen');
+}
+$('#btnWizard').addEventListener('click',function(){ wzStep=0; renderWizard(); document.getElementById('wizard').classList.add('show'); });
+$('#wizardNext').addEventListener('click',wizardApply);
+$('#wizardBack').addEventListener('click',function(){ if(wzStep>0){ wzStep--; renderWizard(); }});
+$('#wizardClose').addEventListener('click',function(){ document.getElementById('wizard').classList.remove('show'); });
+
+// Report controls
+$('#btnReportType').addEventListener('click',function(){
+  state.reportMode = state.reportMode==='prfv' ? 'all' : 'prfv'; save();
+  this.textContent='Report: '+(state.reportMode==='prfv'?'PrfV':'Gesamt');
+  renderReport();
+});
+
+// SETTINGS: template editor
+function renderTemplateEditor(){
+  var root=document.getElementById('templateEditor'); root.innerHTML='';
+  state.template.forEach((cat,ci)=>{
+    var block=document.createElement('div'); block.className='setBlock';
+    var head=document.createElement('div'); head.className='setHead';
+    head.innerHTML='<span>🗂️</span><input value="'+esc(cat.name)+'" data-ci="'+ci+'" class="setCatName"/><div class="right">\
+    <button class="pill" data-act="addItem" data-ci="'+ci+'">+ Punkt</button>\
+    <button class="pill" data-act="delCat" data-ci="'+ci+'">Kategorie löschen</button></div>';
+    block.appendChild(head);
+    (cat.items||[]).forEach((it,ii)=>{
+      var row=document.createElement('div'); row.className='setRow';
+      row.innerHTML='<button class="pill" data-act="fav" data-ci="'+ci+'" data-ii="'+ii+'">'+(it.fav?'★':'☆')+'</button>\
+      <input value="'+esc(it.label)+'" data-ci="'+ci+'" data-ii="'+ii+'" class="setItemLabel"/>\
+      <button class="pill" data-act="delItem" data-ci="'+ci+'" data-ii="'+ii+'">Löschen</button>';
+      block.appendChild(row);
+    });
+    root.appendChild(block);
+  });
+}
+document.getElementById('templateEditor').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  var act=b.dataset.act, ci=parseInt(b.dataset.ci,10), ii=parseInt(b.dataset.ii||'-1',10);
+  if(act==='addItem'){ state.template[ci].items.push({key:'k_'+uid(),label:'Neuer Punkt'}); save(); renderTemplateEditor(); }
+  if(act==='delItem'){ if(confirm('Punkt löschen?')){ state.template[ci].items.splice(ii,1); save(); renderTemplateEditor(); } }
+  if(act==='delCat'){ if(confirm('Kategorie löschen?')){ state.template.splice(ci,1); save(); renderTemplateEditor(); } }
+  if(act==='fav'){ var it=state.template[ci].items[ii]; it.fav=!it.fav; save(); renderTemplateEditor(); }
+});
+document.getElementById('templateEditor').addEventListener('input',function(e){
+  if(e.target.classList.contains('setCatName')){ var ci=parseInt(e.target.dataset.ci,10); state.template[ci].name=e.target.value; save(); }
+  if(e.target.classList.contains('setItemLabel')){ var ci=parseInt(e.target.dataset.ci,10), ii=parseInt(e.target.dataset.ii,10); state.template[ci].items[ii].label=e.target.value; save(); }
+});
+document.getElementById('btnAddCategory').addEventListener('click',function(){
+  state.template.push({name:'Neue Kategorie',items:[]}); save(); renderTemplateEditor();
+});
+document.getElementById('btnResetTemplate').addEventListener('click',function(){
+  if(!confirm('Vorlage auf Standard zurücksetzen?')) return;
+  localStorage.removeItem(DB_KEY);
+  load();
+  renderTemplateEditor(); renderSessionItems(); renderReport();
+});
+document.getElementById('btnExportTemplate').addEventListener('click',function(){
+  var blob=new Blob([JSON.stringify(state.template,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='vorlage.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);
+});
+document.getElementById('btnImportTemplate').addEventListener('click',function(){
+  document.getElementById('importTemplateFile').click();
+});
+document.getElementById('importTemplateFile').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(!f) return; var reader=new FileReader(); reader.onload=function(){ try{ var tpl=JSON.parse(reader.result); if(Array.isArray(tpl)){ state.template=tpl; save(); renderTemplateEditor(); renderSessionItems(); renderReport(); showToast('Vorlage importiert'); } }catch(err){ alert('Ungültige Datei'); } }; reader.readAsText(f);
+});
+
+// Init
+function init(){
+  load();
+  setTab('session');
+  renderCombos();
+  renderStudents(); selectStudent(state.selectedStudentId);
+  if($('#sessionStudent')) $('#sessionStudent').value=state.selectedStudentId||'';
+  if($('#sessionDate')) $('#sessionDate').value=todayISO();
+  if(state.ui.showAdv) document.body.classList.add('show-adv');
+  renderTypeDurations();
+  renderSessionItems();
+  $('#btnHeatmap').textContent='Heatmap: '+(state.ui.heatmap?'AN':'AUS');
+  renderReport();
+  renderTemplateEditor();
+}
+init();
+
+})();</script>
+  <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            if (confirm('Update verfügbar – jetzt neu laden?')) {
+              nw.postMessage({type:'SKIP_WAITING'});
+            }
+          }
+        });
+      });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      location.reload();
+    });
+  });
+}
+</script>
+
+</body>
+</html>
